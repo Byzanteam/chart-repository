@@ -1,0 +1,19 @@
+apiVersion: v1
+entries:
+  application-chart-template:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2024-04-01T09:51:18.386322498Z"
+    description: A Helm chart template for byzanteam application
+    digest: 00b20ff8edc8465b525944107d82079a09c9bef1cc297bddd57a3f387eae72c3
+    maintainers:
+    - email: yangke@jet.work
+      name: YangKe
+    name: application-chart-template
+    sources:
+    - https://github.com/Byzanteam/application-chart-template/
+    type: application
+    urls:
+    - https://github.com/Byzanteam/chart-repository/releases/download/application-chart-template-1.4.1/application-chart-template-1.4.1.tgz
+    version: 1.4.1
+generated: "2024-04-01T09:51:18.386332446Z"
