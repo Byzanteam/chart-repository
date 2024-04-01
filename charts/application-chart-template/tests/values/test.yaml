@@ -1,0 +1,72 @@
+image:
+  repository: registry.cn-hangzhou.aliyuncs.com/org/image
+  tag: "latest"
+
+imageCredentials:
+  registry: registry.cn-hangzhou.aliyuncs.com
+  username: deploy-man
+  password: test123456
+  email: dev@byzan.team
+
+namespace: byzanteam
+
+applicationHosts:
+  - "192.168.0.1"
+  - "172.16.0.1"
+
+appIngressroute:
+  - name: app
+    path: /app
+  - name: image
+    path: /imag
+
+corsSettings:
+  accessControlAllowHeaders:
+    - 'Date'
+    - 'Etag'
+    - 'X-Request-Id'
+  accessControlAllowMethods:
+    - GET
+    - OPTIONS
+    - POST
+  accessControlAllowOriginList:
+    - 'example.com'
+    - 'test.cn'
+  accessControlMaxAge: "200"
+
+service:
+  name: http
+  type: ClusterIP
+  port: 8080
+
+externalIngressroute:
+  - name: "apis-server"
+    host: "api.local.com"
+    port: "443"
+    path: "/apis"
+    middlewares:
+      - cors-header
+      - redirect-to-https
+  - name: "down-server"
+    ip: "172.16.0.1"
+    port: "80"
+    path: "/down"
+    middlewares:
+      - compress
+      - cors-header
+      - strip-prefix
+
+applicationTLS:
+  TLSSecret:
+    certificate: dGVzdC1jaGFydC1jZXJ0LWZpbGUK
+    key: dGVzdC1jaGFydC1rZXktZmlsZQo=
+
+initContainers:
+  - name: init
+    image: buxybox:latest
+    command: ["sh", "-c"]
+    args: ["pwd"]
+
+env:
+  db-host: db-chart
+  accesskey: 123456

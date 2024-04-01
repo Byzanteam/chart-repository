@@ -1,0 +1,51 @@
+suite: test external service
+templates:
+  - templates/external-services/service.yaml
+tests:
+  - it: should render nothing if externalIngress empty
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should render the resource name
+    values:
+      - ./values/test.yaml
+    asserts:
+      # endpoint source name
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-application-chart-template-down-server
+        documentIndex: 0
+      # clusterip type service source name
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-application-chart-template-down-server
+        documentIndex: 1
+      # externalname type service source name
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-application-chart-template-apis-server
+        documentIndex: 2
+
+  # test externalname typy service source
+  - it: should render the service type ExternalName if set externalIngressroute.host
+    values:
+      - ./values/test.yaml
+    asserts:
+      - isSubset:
+          path: spec
+          content:
+            type: ExternalName
+            externalName: api.local.com
+        documentIndex: 2
+
+  # test endpoint ip address
+  - it: should render the endpoint if set externalIngressroute.ip
+    values:
+      - ./values/test.yaml
+    asserts:
+      - equal:
+          path: subsets[0].addresses[0].ip
+          value: 172.16.0.1
+        documentIndex: 0
+

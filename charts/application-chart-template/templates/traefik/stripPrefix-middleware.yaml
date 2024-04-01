@@ -1,0 +1,29 @@
+# TODO: 1. Change `appIngressroute` to `appIngressroutes`
+# 2. Delete this after the version 2.0.0
+{{- if .Values.appIngressroute }}
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ include "application-chart-template.fullname" . }}-strip-prefix
+  namespace: {{ .Release.Namespace }}
+spec:
+  stripPrefix:
+    prefixes:
+    {{- range .Values.appIngressroute }}
+      - {{ .path }}
+    {{- end }}
+{{- end }}
+
+{{- if .Values.appIngressroutes }}
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ include "application-chart-template.fullname" . }}-strip-prefix
+  namespace: {{ .Release.Namespace }}
+spec:
+  stripPrefix:
+    prefixes:
+    {{- range .Values.appIngressroutes }}
+      - {{ .path }}
+    {{- end }}
+{{- end }}

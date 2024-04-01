@@ -1,0 +1,50 @@
+{{- range $_, $service := .Values.externalIngressroute }}
+{{- if hasKey $service "ip" }}
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: {{ include "application-chart-template.external-service-name" (dict "root" $ "service" $service ) }}
+  labels:
+    {{- include "application-chart-template.labels" $ | nindent 4 }}
+  namespace: {{ $.Release.Namespace }}
+subsets:
+- addresses:
+  - ip: {{ $service.ip }}
+  ports:
+  - name: {{ $service.name }}
+    port: {{ $service.port }}
+    protocol: TCP
+{{- end }}
+{{- end }}
+---
+{{- range $_, $service := .Values.externalIngressroute }}
+{{- if hasKey $service "ip" }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "application-chart-template.external-service-name" (dict "root" $ "service" $service ) }}
+  labels:
+    {{- include "application-chart-template.labels" $ | nindent 4 }}
+  namespace: {{ $.Release.Namespace }}
+spec:
+  ports:
+    - protocol: TCP
+      port: {{ $service.port }}
+      targetPort: {{ $service.port }}
+{{- end }}
+{{- end }}
+---
+{{- range $_, $service := .Values.externalIngressroute }}
+{{- if hasKey $service "host" }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "application-chart-template.external-service-name" (dict "root" $ "service" $service ) }}
+  labels:
+    {{- include "application-chart-template.labels" $ | nindent 4 }}
+  namespace: {{ $.Release.Namespace }}
+spec:
+  type: ExternalName
+  externalName: {{ $service.host }}
+{{- end }}
+{{- end }}

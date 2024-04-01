@@ -1,0 +1,117 @@
+suite: test deployment
+templates:
+  - templates/deployment.yaml
+tests:
+  - it: should render deployment resource
+    asserts:
+      - isKind:
+          of: Deployment
+
+  - it: should set name label to nameOverride if no override is set
+    asserts:
+      - isSubset:
+          path: spec.selector
+          content:
+            matchLabels:
+              app.kubernetes.io/name: application-chart-template
+              app.kubernetes.io/instance: RELEASE-NAME
+              app.kubernetes.io/namespace: NAMESPACE
+
+  - it: should set name label to nameOverride if set
+    set:
+      nameOverride: unittest
+    asserts:
+      - isSubset:
+          path: spec.selector
+          content:
+            matchLabels:
+              app.kubernetes.io/name: unittest
+              app.kubernetes.io/instance: RELEASE-NAME
+              app.kubernetes.io/namespace: NAMESPACE
+
+  - it: should change image when image value is specified
+    values:
+      - ./values/test.yaml
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: registry.cn-hangzhou.aliyuncs.com/org/image:latest
+
+  - it: should set imagePullSecrets if given
+    values:
+      - ./values/test.yaml
+    asserts:
+      - equal:
+          path: spec.template.spec.imagePullSecrets[0].name
+          value: RELEASE-NAME-application-chart-template-docker-registry-secret
+
+  - it: should set initContainers if given
+    values:
+      - ./values/test.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers
+          content:
+            name: init
+            image: buxybox:latest
+            command: ["sh", "-c"]
+            args: ["pwd"]
+
+  - it: should not have data volumeMount by default
+    asserts:
+      - isNull:
+          path: spec.template.spec.containers[0].volumeMounts[0]
+
+  - it: should have data volumeMount if set
+    set:
+      volumeMounts:
+        - mountPath: /path/file
+          name: unittest
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].volumeMounts[0].name
+          value: unittest
+      - equal:
+          path: spec.template.spec.containers[0].volumeMounts[0].mountPath
+          value: /path/file
+
+  - it: env should be set when envFromSecrets configed
+    set:
+      envFromSecrets:
+        - existSecretName: common
+          env:
+            - envName: "COMMON_ENV_1"
+              secretKey: "common_1"
+            - envName: "COMMON_ENV_2"
+              secretKey: "common_2"
+        - existSecretName: self
+          env:
+            - envName: "SELF_ENV_1"
+              secretKey: "self_1"
+            - envName: "SELF_ENV_2"
+              secretKey: "self_2"
+    asserts:
+      - isSubset:
+          path: spec.template.spec.containers[0]
+          content:
+            env:
+              - name: COMMON_ENV_1
+                valueFrom:
+                  secretKeyRef:
+                    name: common
+                    key: "common_1"
+              - name: COMMON_ENV_2
+                valueFrom:
+                  secretKeyRef:
+                    name: common
+                    key: "common_2"
+              - name: SELF_ENV_1
+                valueFrom:
+                  secretKeyRef:
+                    name: self
+                    key: "self_1"
+              - name: SELF_ENV_2
+                valueFrom:
+                  secretKeyRef:
+                    name: self
+                    key: "self_2"

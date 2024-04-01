@@ -1,0 +1,41 @@
+# TODO: 1. Change `appIngressroute` to `appIngressroutes`
+# 2. Delete this after the version 2.0.0
+{{- if .Values.appIngressroute }}
+{{- if $.Values.corsSettings }}
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ include "application-chart-template.fullname" . }}-cors
+  namespace: {{ .Release.Namespace }}
+spec:
+  headers:
+    accessControlAllowHeaders:
+    {{- $.Values.corsSettings.accessControlAllowHeaders | toYaml | nindent 8 }}
+    accessControlAllowMethods:
+    {{- $.Values.corsSettings.accessControlAllowMethods | toYaml | nindent 8 }}
+    accessControlAllowOriginList:
+    {{- $.Values.corsSettings.accessControlAllowOriginList | toYaml | nindent 8 }}
+    accessControlMaxAge: {{ $.Values.corsSettings.accessControlMaxAge }}
+    addVaryHeader: true
+{{- end }}
+{{- end }}
+
+{{- if .Values.appIngressroutes }}
+{{- if $.Values.corsSettings }}
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ include "application-chart-template.fullname" . }}-cors
+  namespace: {{ .Release.Namespace }}
+spec:
+  headers:
+    accessControlAllowHeaders:
+    {{- $.Values.corsSettings.accessControlAllowHeaders | toYaml | nindent 8 }}
+    accessControlAllowMethods:
+    {{- $.Values.corsSettings.accessControlAllowMethods | toYaml | nindent 8 }}
+    accessControlAllowOriginList:
+    {{- $.Values.corsSettings.accessControlAllowOriginList | toYaml | nindent 8 }}
+    accessControlMaxAge: {{ $.Values.corsSettings.accessControlMaxAge }}
+    addVaryHeader: true
+{{- end }}
+{{- end }}

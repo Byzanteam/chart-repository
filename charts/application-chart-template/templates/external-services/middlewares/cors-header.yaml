@@ -1,0 +1,13 @@
+{{- range $_, $service := .Values.externalIngressroute }}
+{{- if has "cors-header" $service.middlewares }}
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ include "application-chart-template.external-service-name" (dict "root" $ "service" $service ) }}-cors-header
+  namespace: {{ $.Release.Namespace }}
+spec:
+  headers:
+    customRequestHeaders:
+      Host: {{ coalesce $service.host $service.ip }}
+{{- end }}
+{{- end }}

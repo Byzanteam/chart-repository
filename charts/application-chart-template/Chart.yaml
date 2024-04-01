@@ -1,0 +1,21 @@
+# chart API 版本
+apiVersion: v2
+# chart名称
+name: application-chart-template
+# chart 描述
+description: A Helm chart template for byzanteam application
+# chart 类型
+type: application
+# chart 版本
+version: 1.4.1
+# 项目源码的URL列表
+sources:
+  - https://github.com/Byzanteam/application-chart-template/
+# 维护者信息
+maintainers:
+  # 维护者名字
+  - name: YangKe
+  # 维护者邮箱
+    email: yangke@jet.work
+# 包含的应用版本
+appVersion: "1.0.0"

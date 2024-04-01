@@ -1,0 +1,97 @@
+suite: test external ingressroute
+templates:
+  - templates/external-services/ingress-route.yaml
+tests:
+  - it: should render nothing if externalIngress empty
+    asserts:
+      - hasDocuments:
+          count: 0
+  - it: should render match rule right
+    values:
+      - ./values/test.yaml
+    asserts:
+      - equal:
+          path: spec.routes[0].match
+          value: (Host(`192.168.0.1`) || Host(`172.16.0.1`)) && PathPrefix(`/apis`)
+        documentIndex: 1
+      - equal:
+          path: spec.routes[0].match
+          value: (Host(`192.168.0.1`) || Host(`172.16.0.1`)) && PathPrefix(`/down`)
+        documentIndex: 2
+
+  - it: should render the middleware if set
+    values:
+      - ./values/test.yaml
+    asserts:
+      - equal:
+          path: spec.routes[0].middlewares[0].name
+          value: RELEASE-NAME-application-chart-template-apis-server-cors-header
+        documentIndex: 0
+      - equal:
+          path: spec.routes[0].middlewares[1].name
+          value: RELEASE-NAME-application-chart-template-apis-server-redirect-to-https
+        documentIndex: 0
+      - equal:
+          path: spec.routes[0].middlewares[0].name
+          value: RELEASE-NAME-application-chart-template-apis-server-cors-header
+        documentIndex: 1
+      - equal:
+          path: spec.routes[0].middlewares[0].name
+          value: RELEASE-NAME-application-chart-template-down-server-compress
+        documentIndex: 2
+      - equal:
+          path: spec.routes[0].middlewares[1].name
+          value: RELEASE-NAME-application-chart-template-down-server-cors-header
+        documentIndex: 2
+      - equal:
+          path: spec.routes[0].middlewares[2].name
+          value: RELEASE-NAME-application-chart-template-down-server-strip-prefix
+        documentIndex: 2
+
+  - it: should render ingressroute web if only set redirect-to-https middleware
+    set:
+      externalIngressroute:
+        - name: tls-test
+          middlewares:
+            - redirect-to-https
+      applicationTLS: []
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: should render ingressroute web and websecure if  set tls and redirect-to-https middleeware
+    set:
+      externalIngressroute:
+        - name: tls-test
+          middlewares:
+            - redirect-to-https
+      applicationTLS:
+        TLSSecret:
+          certificate: dGVzdC1jaGFydC1jZXJ0LWZpbGUK
+          key: dGVzdC1jaGFydC1rZXktZmlsZQo=
+    asserts:
+      - hasDocuments:
+          count: 2
+
+  - it:  should render tls secretName if set applicationTLS.TLSSecret
+    values:
+      - ./values/test.yaml
+    asserts:
+      - isSubset:
+          path: spec.tls
+          content:
+            secretName: RELEASE-NAME-application-chart-template-tls-secret
+        documentIndex: 1
+
+  - it:  should render tls certResolver if set applicationTLS.certResolver
+    set:
+      applicationTLS:
+        certResolver: byzanteam
+    values:
+      - ./values/test.yaml
+    asserts:
+      - isSubset:
+          path: spec.tls
+          content:
+            certResolver: byzanteam
+        documentIndex: 1

@@ -1,0 +1,13 @@
+{{- range $_, $service := .Values.externalIngressroute }}
+{{- if has "strip-prefix" $service.middlewares }}
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ include "application-chart-template.external-service-name" (dict "root" $ "service" $service ) }}-strip-prefix
+  namespace: {{ $.Release.Namespace }}
+spec:
+  stripPrefix:
+    prefixes:
+      - {{ $service.path }}
+{{- end }}
+{{- end }}

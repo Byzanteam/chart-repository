@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "application-chart-template.fullname" . }}
+  labels:
+    {{- include "application-chart-template.labels" . | nindent 4 }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "application-chart-template.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "application-chart-template.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- if .Values.imageCredentials | empty | not }}
+      imagePullSecrets:
+        - name: {{ include "application-chart-template.fullname" . }}-docker-registry-secret
+      {{- end }}
+      {{- if .Values.initContainers | empty | not }}
+      initContainers:
+        {{- .Values.initContainers | toYaml | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ include "application-chart-template.name" . }}
+          {{- if .Values.envFromSecrets }}
+          env:
+            {{- include "application-chart-template.applicationSecretKeys" . | nindent 12 }}
+          {{- end }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "application-chart-template.fullname" . }}-env
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if .Values.command }}
+          command:
+            {{ .Values.command | toYaml | nindent 12 }}
+          {{- end }}
+          ports:
+            # TODO: 1. Update multiple service ports. Input multiple service ports using list.
+            # 2. Delete this after the version 2.0.0
+            {{- if .Values.service.port }}
+            - name: {{ .Values.service.name }}
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+            {{- else }}
+            {{- range .Values.service.ports }}
+            - name: {{ .name }}
+              containerPort: {{ .port }}
+              protocol: {{ .protocol }}
+            {{- end }}
+            {{- end }}
+          volumeMounts:
+            {{- .Values.volumeMounts | toYaml | nindent 12 }}
+      restartPolicy: {{ .Values.restartPolicy }}
+      volumes:
+        {{- .Values.volumes | toYaml | nindent 8 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+

@@ -1,0 +1,58 @@
+{{- range $_, $service := .Values.externalIngressroute }}
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ include "application-chart-template.external-service-name" (dict "root" $ "service" $service ) }}-web
+  namespace: {{ $.Release.Namespace }}
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: {{ include "application-chart-template.applicationHosts" $ }} && PathPrefix(`{{ .path }}`)
+      kind: Rule
+      services:
+        - name: {{ include "application-chart-template.external-service-name" (dict "root" $ "service" $service ) }}
+          port: {{ $service.port }}
+      middlewares:
+        {{- if $.Values.applicationTLS | empty | not }}
+        {{- range $service.middlewares }}
+        - name: {{ include "application-chart-template.external-service-name" (dict "root" $ "service" $service ) }}-{{ . }}
+        {{- end }}
+        {{- else }}
+        {{- range without $service.middlewares "redirect-to-https" }}
+        - name: {{ include "application-chart-template.external-service-name" (dict "root" $ "service" $service ) }}-{{ . }}
+        {{- end }}
+        {{- end }}
+---
+{{- if $.Values.applicationTLS | empty | not }}
+{{- if has "redirect-to-https" $service.middlewares }}
+
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ include "application-chart-template.external-service-name" (dict "root" $ "service" $service ) }}-websecure
+  namespace: {{ $.Release.Namespace }}
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: {{ include "application-chart-template.applicationHosts" $ }} && PathPrefix(`{{ .path }}`)
+      kind: Rule
+      services:
+        - name: {{ include "application-chart-template.external-service-name" (dict "root" $ "service" $service ) }}
+          port: {{ $service.port }}
+      middlewares:
+        {{- range without $service.middlewares "redirect-to-https" }}
+        - name: {{ include "application-chart-template.external-service-name" (dict "root" $ "service" $service ) }}-{{ . }}
+        {{- end }}
+  tls:
+    {{- if $.Values.applicationTLS.certResolver | empty | not }}
+    certResolver: {{ $.Values.applicationTLS.certResolver }}
+    {{- else if $.Values.applicationTLS.TLSSecret | empty | not }}
+    secretName: {{ include "application-chart-template.fullname" $ }}-tls-secret
+    {{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

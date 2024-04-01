@@ -1,0 +1,39 @@
+suite: test tls secret
+templates:
+  - templates/secrets/tls.yaml
+tests:
+  - it: should render secret resource
+    values:
+      - ./values/test.yaml
+    asserts:
+      - isKind:
+          of: Secret
+
+  - it: should render name if not set fullnameOverride
+    values:
+      - ./values/test.yaml
+    asserts:
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-application-chart-template-tls-secret
+
+  - it: should render name if set fullnameOverride
+    set:
+      fullnameOverride: unittest
+    values:
+      - ./values/test.yaml
+    asserts:
+      - equal:
+          path: metadata.name
+          value: unittest-tls-secret
+
+  - it: should equal tls values
+    values:
+      - ./values/test.yaml
+    asserts:
+      - isSubset:
+          path: data
+          content:
+            tls.crt: dGVzdC1jaGFydC1jZXJ0LWZpbGUK
+            tls.key: dGVzdC1jaGFydC1rZXktZmlsZQo=
+

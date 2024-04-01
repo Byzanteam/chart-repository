@@ -1,0 +1,129 @@
+# Default values for application-chart-template.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+######################## Cluster Setting ########################
+
+# 使用前请修改 fullnameOverride 和 nameOverride，方便分辨与查找此应用
+nameOverride: ""
+fullnameOverride: ""
+
+# 设置此 Pod 的副本数
+replicaCount: 1
+
+image:
+  repository: nginx
+  pullPolicy: IfNotPresent
+  tag: latest
+
+imageCredentials: {}
+  # registry: registry.cn-hangzhou.aliyuncs.com
+  # username: deploy-man@skylark
+  # password: changeit
+  # email: dev@byzan.team
+
+# 自动重启策略
+restartPolicy: Always
+
+# Pod 调度设置
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+######################## External Service Setting ########################
+
+# traefik 代理外部服务的匹配规则
+externalIngressroute: []
+#   - name: "firt-server"
+#     host: "test.cn"
+#     port: "80"
+#     path: "/first"
+#     middlewares:
+#       - compress
+#       - strip-prefix
+#       - cors-header
+#   - name: "second-server"
+#     ip: "127.0.0.1"
+#     port: "443"
+#     path: "/second"
+#     middlewares:
+#       - strip-prefix
+#       - cors-header
+#       - redirect-to-https
+#       - cors-header
+
+######################## Application Service Setting ########################
+
+# 应用服务配置
+service:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 80
+      protocol: TCP
+
+# 覆盖 image command
+command: []
+  # - /bin/sh
+  # - -c
+
+# Application 访问域名设置
+applicationHosts: []
+  # - localhost
+
+applicationTLS: {}
+  # 证书挑战设置此项
+  # certResolver: jet
+  # 已有证书设置此项
+  # TLSSecret: {}
+    # certificate: base64 encoding certificate-file
+    # key: base64 encoding key-file
+
+# traefik 代理应用的匹配规则
+appIngressroutes: []
+  # - name: web
+  #   path: /
+  #   servicePortName: http
+
+# 跨域相关设置
+corsSettings: {}
+  # accessControlAllowHeaders:
+  #   - '*'
+  # accessControlAllowMethods:
+  #   - GET
+  #   - OPTIONS
+  #   - PUT
+  # accessControlAllowOriginList:
+  #   - '*'
+  # accessControlMaxAge: "100"
+
+# 需要使用 initcontainers 请配置此项
+initContainers: []
+  # - name: init
+  #   image: busybox:latest
+  #   command: ["sh", "-c"]
+  #   args: []
+  #   envFrom:
+  #      - configMapRef:
+  #          name: {{ include "application-chart-template.name" $ }}-env
+
+# 设置此应用持久化存储
+volumeMounts: []
+  # - mountPath: /path/file
+  #   name: volumeName
+
+volumes: []
+  # - name: volumeName
+  #   hostPath:
+  #     path: /local/path
+  #     type: DirectoryOrCreate
+
+# 使用已存在的 secret 作为环境变量
+envFromSecrets: []
+  # - existSecretName: "jet-env-secret"
+  #   env:
+  #     - envName: "LOG_LEVEL"
+  #       secretKey: "jet_plugin_level"
+
+# application environment variablea, 根据实际设置
+env: {}

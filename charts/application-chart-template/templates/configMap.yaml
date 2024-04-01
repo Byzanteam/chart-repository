@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    {{- include "application-chart-template.labels" . | nindent 4 }}
+  name: {{ include "application-chart-template.fullname" . }}-env
+  namespace: {{ .Release.Namespace }}
+data:
+  {{- .Values.env | toYaml | nindent 2 }}
