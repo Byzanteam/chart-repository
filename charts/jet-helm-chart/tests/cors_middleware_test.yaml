@@ -1,0 +1,29 @@
+suite: test cors middleware
+templates:
+  - templates/traefik/middlewares/cors.yaml
+tests:
+  - it: should render nothing if corsSettings empty
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should render cors middleware by self-defined parameter
+    values:
+      - ./values/test.yaml
+    asserts:
+      - isSubset:
+          path: spec.headers
+          content:
+            accessControlAllowHeaders:
+              - 'Date'
+              - 'Etag'
+              - 'X-Request-Id'
+            accessControlAllowMethods:
+              - GET
+              - OPTIONS
+              - POST
+            accessControlAllowOriginList:
+              - 'example.com'
+              - 'test.cn'
+            accessControlMaxAge: 200
+            addVaryHeader: true

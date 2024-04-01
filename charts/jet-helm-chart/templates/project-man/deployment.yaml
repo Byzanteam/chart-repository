@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "jet-helm-chart.fullname" . }}-project-man
+  labels:
+    {{- include "jet-helm-chart.projectManLabels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.projectMan.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "jet-helm-chart.projectManSelectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "jet-helm-chart.projectManSelectorLabels" . | nindent 8 }}
+    spec:
+      {{- if .Values.image.existingImageSecret }}
+      imagePullSecrets:
+        - name: {{ .Values.image.existingImageSecret }}
+      {{- end }}
+      initContainers:
+        - name: init-breeze-service
+          image: busybox:1.28
+          command: 
+            - 'sh'
+            - '-c'
+            - 'until nslookup {{ include "jet-helm-chart.fullname" . }}-breeze.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for breeze; sleep 2; done'
+        {{- if .Values.projectmandb.enabled }}
+        - name: init-project-man-db
+          image: byzanteam/psql
+          env:
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.projectmandb.auth.existingSecret }}
+                  key: project-man-password
+          command:
+            - 'sh'
+            - '-c'
+            - 'until psql -c "SELECT 1" "user=postgres dbname=project_man_prod host={{ include "jet-helm-chart.projectManDB.fullname" . }}"; do echo waiting for project man db; sleep 2; done'
+        {{- end }}
+      containers:
+        - name: {{ include "jet-helm-chart.fullname" . }}-project-man
+          image: {{ include "jet-helm-chart.projectManImage" . }}
+          imagePullPolicy: {{ .Values.projectMan.image.pullPolicy }}
+          env:
+            {{- include "jet-helm-chart.projectManSecretKeys" . | nindent 12 }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "jet-helm-chart.fullname" . }}-project-man-env
+          ports:
+            - name: runtime-grpc
+              containerPort: 50051
+              protocol: TCP
+            - name: traceaware-grpc
+              containerPort: 50052
+              protocol: TCP
+            - name: projectman-api
+              containerPort: 8080
+              protocol: TCP
+            - name: plugin-api
+              containerPort: 8090
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.projectMan.resources | nindent 12 }}
+      {{- with .Values.projectMan.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.projectMan.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.projectMan.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

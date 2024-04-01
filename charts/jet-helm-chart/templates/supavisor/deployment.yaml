@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "jet-helm-chart.fullname" . }}-supavisor
+  labels
+    {{- include "jet-helm-chart.supavisorLabels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.supavisor.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "jet-helm-chart.supavisorSelectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "jet-helm-chart.supavisorSelectorLabels" . | nindent 8 }}
+    spec:
+      {{- if .Values.image.existingImageSecret }}
+      imagePullSecrets:
+        - name: {{ .Values.image.existingImageSecret }}
+      {{- end }}
+      initContainers:
+        {{- if .Values.dynamicdb.enabled }}
+        - name: init-dynamic-db
+          image: byzanteam/psql
+          env:
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.dynamicdb.auth.existingSecret }}
+                  key: dynamic-password
+          command:
+            - 'sh'
+            - '-c'
+            - 'until psql -c "SELECT 1" "user=postgres dbname=dynamic_prod host={{ include "jet-helm-chart.dynamicdb.fullname" . }}"; do echo waiting for dynamic db; sleep 2; done'
+        {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}-supavisor
+          image: {{ include "jet-helm-chart.supavisorImage" . }}
+          imagePullPolicy: {{ .Values.supavisor.image.pullPolicy }}
+          command:
+            - sh 
+            - -c 
+            - "/app/bin/migrate && /app/bin/server"
+          envFrom:
+            - configMapRef:
+                name: {{ include "jet-helm-chart.fullname" . }}-supavisor-env
+          ports:
+            - name: supavisor-api
+              containerPort: 4000
+              protocol: TCP
+            - name: supavisor-session
+              containerPort: 5452
+              protocol: TCP
+            - name: supavisor-transaction
+              containerPort: 6543
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.supavisor.resources | nindent 12 }}
+      {{- with .Values.supavisor.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.supavisor.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.supavisor.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+

@@ -1,0 +1,200 @@
+# Default values for jet-helm-chart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+nameOverride: ""
+fullnameOverride: ""
+
+existingJetSecret: jet-env-secret
+
+image:
+  registry: registry.cn-hangzhou.aliyuncs.com
+  existingImageSecret: ""
+
+projectMan:
+  image:
+    repository: jet/project_man
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  env:
+    RELEASE_NODE: sname
+    RELEASE_COOKIE: cookie
+    PROJECT_MAN_DYNAMIC_REPO_EXPOSED_HOSTNAME: dynamic_prod
+    PROJECT_MAN_DYNAMIC_REPO_EXPOSED_PORT: "5432"
+    PROJECT_MAN_API_HOST: project_man
+    PLUGIN_API_HOST: project_man
+    PROJECT_MAN_ECTO_IPV6: "false"
+    TRACE_AWARE_ECTO_IPV6: "false"
+  replicaCount: 1
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+breeze:
+  image:
+    repository: jet/breeze
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  replicaCount: 1
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+supavisor:
+  image:
+    repository: supabase/supavisor
+    pullPolicy: IfNotPresent
+    tag: "1.1.42"
+  env:
+    REGION: "local"
+  replicaCount: 1
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# Jet ingress route
+hosts: []
+  # - localhost
+  # - jet.work
+certificate: {}
+  # Certificate challenge field
+  # certResolver: jet
+  #
+  # Custom tls certificate secret name
+  # tlsSecretName: ""
+
+ingressroute:
+  # Jet subpath
+  subpath: ""
+
+  # Ingress middlewares
+  middlewares:
+    corsSettings: {}
+      # accessControlAllowHeaders:
+      #   - '*'
+      # accessControlAllowMethods:
+      #   - GET
+      #   - OPTIONS
+      #   - PUT
+      # accessControlAllowOriginList:
+      #   - '*'
+      # accessControlMaxAge: "100"
+
+backup: {}
+  # veleroSchedule: "0 1 * * *"
+  # includeNamespaces:
+  #   - production
+  # selector:
+  #   app.kubernetes.io/instance: postgresql
+  # storageLocation: ""
+  # ttl: "720h0m0s"
+
+# dependencies configuration
+# project man db values
+projectmandb:
+  enabled: false
+  fullnameOverride: ""
+  nameOverride: project-man-db
+  architecture: standalone
+  auth:
+    database: postgres
+    existingSecret: dependency-db-secret
+    secretKeys:
+      adminPasswordKey: project-man-password
+  image:
+    tag: 15.4.0-debian-11-r54
+  metrics:
+    enabled: true
+  primary:
+    extendedConfiguration: |
+      max_connections = 500
+      shared_buffers = 12GB
+      effective_cache_size = 36GB
+      maintenance_work_mem = 2GB
+      checkpoint_completion_target = 0.9
+      wal_buffers = 16MB
+      default_statistics_target = 100
+      random_page_cost = 1.1
+      effective_io_concurrency = 200
+      work_mem = 6291kB
+      huge_pages = try
+      min_wal_size = 1GB
+      max_wal_size = 4GB
+      max_worker_processes = 16
+      max_parallel_workers_per_gather = 4
+      max_parallel_workers = 16
+      max_parallel_maintenance_workers = 4
+    initdb:
+      scripts:
+        init-db.sh: |
+          #!/bin/bash
+          set -e
+
+          psql -v ON_ERROR_STOP=1 --username "postgres" --dbname "postgres" <<-EOSQL
+          CREATE DATABASE project_man_prod;
+          EOSQL
+    name: production
+    persistence:
+      enabled: false
+    pgHbaConfiguration: |-
+      local   all             all                                     trust
+      host    all             all             127.0.0.1/32            trust
+      host    all             all             ::1/128                 trust
+      host    all             all             all                     scram-sha-256
+  shmVolume:
+    sizeLimit: 5Gi
+
+# dynamic db values
+dynamicdb:
+  enabled: false
+  fullnameOverride: ""
+  nameOverride: dynamic-db
+  architecture: standalone
+  auth:
+    database: postgres
+    existingSecret: dependency-db-secret
+    secretKeys:
+      adminPasswordKey: dynamic-password
+  image:
+    tag: 15.4.0-debian-11-r54
+  metrics:
+    enabled: true
+  primary:
+    extendedConfiguration: |
+      max_connections = 500
+      shared_buffers = 12GB
+      effective_cache_size = 36GB
+      maintenance_work_mem = 2GB
+      checkpoint_completion_target = 0.9
+      wal_buffers = 16MB
+      default_statistics_target = 100
+      random_page_cost = 1.1
+      effective_io_concurrency = 200
+      work_mem = 6291kB
+      huge_pages = try
+      min_wal_size = 1GB
+      max_wal_size = 4GB
+      max_worker_processes = 16
+      max_parallel_workers_per_gather = 4
+      max_parallel_workers = 16
+      max_parallel_maintenance_workers = 4
+    initdb:
+      scripts:
+        init-db.sh: |
+          #!/bin/bash
+          set -e
+
+          psql -v ON_ERROR_STOP=1 --username "postgres" --dbname "postgres" <<-EOSQL
+          CREATE DATABASE dynamic_prod;
+          EOSQL
+    name: production
+    persistence:
+      enabled: false
+    pgHbaConfiguration: |-
+      local   all             all                                     trust
+      host    all             all             127.0.0.1/32            trust
+      host    all             all             ::1/128                 trust
+      host    all             all             all                     scram-sha-256
+  shmVolume:
+    sizeLimit: 5Gi

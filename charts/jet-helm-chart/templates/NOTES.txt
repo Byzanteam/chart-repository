@@ -1,0 +1,14 @@
+Please visit the url:
+{{- $path := (.Values.ingressroute.subpath | default "") }}
+{{- range $_, $host := .Values.hosts }}
+ProjectMan Api:
+  {{ empty $.Values.certificate | ternary "http" "https" }}://{{ $host }}{{ $path }}/project_man/api/v1/
+  {{ empty $.Values.certificate | ternary "http" "https" }}://{{ $host }}{{ $path }}/project_man/api/v1/explorer
+  {{ empty $.Values.certificate | ternary "http" "https" }}://{{ $host }}{{ $path }}/project_man/api/v1/graphql.sdl
+Plugin Api:
+  {{ empty $.Values.certificate | ternary "http" "https" }}://{{ $host }}{{ $path }}/plugin/api/v1/
+  {{ empty $.Values.certificate | ternary "http" "https" }}://{{ $host }}{{ $path }}/plugin/api/v1/explorer
+  {{ empty $.Values.certificate | ternary "http" "https" }}://{{ $host }}{{ $path }}/plugin/api/v1/graphql.sdl
+Breeze:
+  {{ empty $.Values.certificate | ternary "http" "https" }}://{{ $host }}{{ $path }}/breeze
+{{- end }}
