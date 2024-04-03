@@ -16,6 +16,22 @@ entries:
     urls:
     - https://github.com/Byzanteam/chart-repository/releases/download/application-chart-template-1.4.1/application-chart-template-1.4.1.tgz
     version: 1.4.1
+  jet-factory-chart:
+  - apiVersion: v2
+    appVersion: 0.1.0
+    created: "2024-04-03T06:22:39.006317879Z"
+    description: A Helm chart for Kubernetes
+    digest: ebe2502bb37b29823ca805832f125ce7871e28b55dafcf644712cc2889bbf281
+    maintainers:
+    - email: yangke@jet.work
+      name: YangKe
+    name: jet-factory-chart
+    sources:
+    - https://github.com/Byzanteam/jet-helm-chart
+    type: application
+    urls:
+    - https://github.com/Byzanteam/chart-repository/releases/download/jet-factory-chart-1.0.0/jet-factory-chart-1.0.0.tgz
+    version: 1.0.0
   jet-helm-chart:
   - apiVersion: v2
     appVersion: 0.1.0
@@ -43,4 +59,4 @@ entries:
     urls:
     - https://github.com/Byzanteam/chart-repository/releases/download/jet-helm-chart-0.2.2/jet-helm-chart-0.2.2.tgz
     version: 0.2.2
-generated: "2024-04-03T04:49:09.544524432Z"
+generated: "2024-04-03T06:22:39.006327648Z"
