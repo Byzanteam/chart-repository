@@ -8,7 +8,7 @@ description: A Helm chart for Kubernetes
 type: application
 
 # chart 版本
-version: 1.0.0
+version: 1.0.1
 # 项目源码的URL列表
 sources:
   - https://github.com/Byzanteam/jet-helm-chart
