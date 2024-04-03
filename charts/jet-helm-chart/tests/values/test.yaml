@@ -1,0 +1,40 @@
+image:
+  registry: registry.cn-hangzhou.aliyuncs.com
+
+projectMan:
+  image:
+    repository: org/projectMan
+    tag: "latest"
+breeze:
+  image:
+    repository: org/breeze
+    tag: "latest"
+traceAware:
+  image:
+    repository: org/traceAware
+    tag: "latest"
+
+hosts:
+  - "jet.work"
+  - "localhost"
+
+ingressroute:
+  subpath: /jet
+  middlewares:
+    corsSettings:
+      accessControlAllowHeaders:
+        - 'Date'
+        - 'Etag'
+        - 'X-Request-Id'
+      accessControlAllowMethods:
+        - GET
+        - OPTIONS
+        - POST
+      accessControlAllowOriginList:
+        - 'example.com'
+        - 'test.cn'
+      accessControlMaxAge: "200"
+
+certificate:
+  tlsSecretName: jet-secret
+

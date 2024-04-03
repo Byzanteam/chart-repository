@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    {{- include "jet-helm-chart.labels" . | nindent 4 }}
+  name: {{ include "jet-helm-chart.fullname" . }}-breeze-env
+data:
+  JET_ENDPOINT: "http://{{ include "jet-helm-chart.fullname" . }}-project-man:50051"
+  TRACE_AWARE_ENDPOINT: "http://{{ include "jet-helm-chart.fullname" . }}-trace-aware:80"
+  RUNTIME_ADDRESS: "0.0.0.0:2137"
+  GRPC_ADDRESS: "0.0.0.0:50052"

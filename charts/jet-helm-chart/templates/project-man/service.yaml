@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "jet-helm-chart.fullname" . }}-project-man
+  labels:
+    {{- include "jet-helm-chart.projectManLabels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: 50051
+      targetPort: runtime-grpc
+      protocol: TCP
+      name: runtime-grpc
+    - port: 50052
+      targetPort: traceaware-grpc
+      protocol: TCP
+      name: traceaware-grpc
+    - port: 8080
+      targetPort: projectman-api
+      protocol: TCP
+      name: projectman-api
+    - port: 8090
+      targetPort: plugin-api
+      protocol: TCP
+      name: plugin-api
+  selector:
+    {{- include "jet-helm-chart.projectManSelectorLabels" . | nindent 4 }}

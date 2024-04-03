@@ -1,0 +1,43 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ include "jet-helm-chart.fullname" . }}-breeze-web
+  labels:
+    {{- include "jet-helm-chart.breezeLabels" . | nindent 4 }}
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: {{ include "jet-helm-chart.ruleHosts" . }} && {{ printf "PathPrefix(`%s`)" (include "jet-helm-chart.buildPath" (dict "prefix" .Values.ingressroute.subpath "path" "/breeze")) }}
+      kind: Rule
+      services:
+        - name: {{ include "jet-helm-chart.fullname" . }}-breeze
+          port: 2137
+      middlewares:
+        {{- include "jet-helm-chart.webMiddlewares" . | nindent 8}}
+---
+{{- if .Values.certificate }}
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ include "jet-helm-chart.fullname" . }}-breeze-websecure
+  labels:
+    {{- include "jet-helm-chart.breezeLabels" . | nindent 4 }}
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: {{ include "jet-helm-chart.ruleHosts" . }} && {{ printf "PathPrefix(`%s`)" (include "jet-helm-chart.buildPath" (dict "prefix" .Values.ingressroute.subpath "path" "/breeze")) }}
+      kind: Rule
+      services:
+        - name: {{ include "jet-helm-chart.fullname" . }}-breeze
+          port: 2137
+      middlewares:
+        {{- include "jet-helm-chart.websecureMiddlewares" . | nindent 8}}
+  tls:
+    {{- if .Values.certificate.certResolver }}
+    certResolver: {{ .Values.certificate.certResolver }}
+    {{- else if .Values.certificate.tlsSecretName }}
+    secretName: {{ .Values.certificate.tlsSecretName }}
+    {{- end }}
+{{- end }}

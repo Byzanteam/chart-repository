@@ -2,9 +2,9 @@ remote: origin
 target-branch: main
 chart-dirs:
   - charts
-charts:
-  - charts
+chart-repos:
+  - bitnami=https://charts.bitnami.com/bitnami
 namespace: default
 release-label: app.kubernetes.io/namespace
 additional-commands:
-  - helm unittest --strict .
+  - helm unittest --strict {{ .Path }}
