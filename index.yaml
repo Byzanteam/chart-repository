@@ -16,4 +16,31 @@ entries:
     urls:
     - https://github.com/Byzanteam/chart-repository/releases/download/application-chart-template-1.4.1/application-chart-template-1.4.1.tgz
     version: 1.4.1
-generated: "2024-04-01T09:51:18.386332446Z"
+  jet-helm-chart:
+  - apiVersion: v2
+    appVersion: 0.1.0
+    created: "2024-04-03T04:49:09.544514985Z"
+    dependencies:
+    - alias: projectmandb
+      condition: projectmandb.enabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 12.5.7
+    - alias: dynamicdb
+      condition: dynamicdb.enabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 12.5.7
+    description: A jet helm chart
+    digest: 6e0ea9e6743079201b0275f4b4f81cf593ccea1773f1c80926fe326882913b07
+    maintainers:
+    - email: yangke@jet.work
+      name: YangKe
+    name: jet-helm-chart
+    sources:
+    - https://github.com/Byzanteam/jet-helm-chart
+    type: application
+    urls:
+    - https://github.com/Byzanteam/chart-repository/releases/download/jet-helm-chart-0.2.2/jet-helm-chart-0.2.2.tgz
+    version: 0.2.2
+generated: "2024-04-03T04:49:09.544524432Z"
