@@ -50,7 +50,7 @@ jobs:
           helm repo add traefik https://traefik.github.io/charts
           helm install traefik traefik/traefik
           helm repo add bitnami https://charts.bitnami.com/bitnami
-          helm dependency update
+          # helm dependency update
           echo -n "${{ secrets.DOCKER_REGISTRY_SECRET }}" | kubectl apply -n default -f -
           echo -n "${{ secrets.JET_ENV_SECRET }}" | kubectl apply -n default -f -
           echo -n "${{ secrets.DEPENDENCY_DB_SECRET }}" | kubectl -n default apply -f -
