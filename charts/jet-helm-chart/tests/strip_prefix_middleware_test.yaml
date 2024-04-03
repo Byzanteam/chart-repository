@@ -1,0 +1,15 @@
+suite: test strip prefix middleware
+templates:
+  - templates/traefik/middlewares/strip-prefix.yaml
+tests:
+  - it: should render strip prefix middleware by self-defined parameter
+    values:
+      - ./values/test.yaml
+    asserts:
+      - isSubset:
+          path: spec.stripPrefix
+          content:
+            prefixes:
+              - /jet/project_man
+              - /jet/plugin
+              - /jet/breeze
