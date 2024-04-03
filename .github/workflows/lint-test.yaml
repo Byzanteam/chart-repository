@@ -45,6 +45,16 @@ jobs:
         if: steps.list-changed.outputs.changed == 'true'
         uses: helm/kind-action@v1.4.0
 
+      - name: Install dependent environment
+        run: |
+          helm repo add traefik https://traefik.github.io/charts
+          helm install traefik traefik/traefik
+          helm repo add bitnami https://charts.bitnami.com/bitnami
+          helm dependency update
+          echo -n "${{ secrets.DOCKER_REGISTRY_SECRET }}" | kubectl apply -n default -f -
+          echo -n "${{ secrets.JET_ENV_SECRET }}" | kubectl apply -n default -f -
+          echo -n "${{ secrets.DEPENDENCY_DB_SECRET }}" | kubectl -n default apply -f -
+
       - name: Run chart-testing (install)
         if: steps.list-changed.outputs.changed == 'true'
         run: ct install --config .github/linters/ct.yaml

@@ -65,19 +65,3 @@ Porject man db service name
 {{- end -}}
 {{- end -}}
 {{- end -}}
-
-{{/*
-Dynamic db service name
-*/}}
-{{- define "jet-helm-chart.dynamicDB.fullname" -}}
-{{- if .Values.dynamicdb.fullnameOverride -}}
-{{- .Values.dynamicdb.fullnameOverride | trunc 63 | trimSuffix "-" -}}
-{{- else -}}
-{{- $name := default .Chart.Name .Values.dynamicdb.nameOverride -}}
-{{- if contains $name .Release.Name -}}
-{{- .Release.Name | trunc 63 | trimSuffix "-" -}}
-{{- else -}}
-{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-{{- end -}}
-{{- end -}}

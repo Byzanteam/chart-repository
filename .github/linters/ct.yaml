@@ -7,4 +7,4 @@ chart-repos:
 namespace: default
 release-label: app.kubernetes.io/namespace
 additional-commands:
-  - helm unittest --strict .
+  - helm unittest --strict {{ .Path }}

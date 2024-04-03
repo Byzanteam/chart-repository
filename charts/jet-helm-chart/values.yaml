@@ -40,18 +40,6 @@ breeze:
   nodeSelector: {}
   tolerations: []
   affinity: {}
-supavisor:
-  image:
-    repository: supabase/supavisor
-    pullPolicy: IfNotPresent
-    tag: "1.1.42"
-  env:
-    REGION: "local"
-  replicaCount: 1
-  resources: {}
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
 
 # Jet ingress route
 hosts: []
