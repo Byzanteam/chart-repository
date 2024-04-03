@@ -58,6 +58,6 @@ database:
 
 # jet-factory environment variable
 # DATABASE_URL 通过 configMap 设置
-env: 
+env:
   SECRET_KEY_BASE: ""
   PHX_HOST: localhost
