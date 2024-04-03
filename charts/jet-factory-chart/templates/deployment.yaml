@@ -16,8 +16,13 @@ spec:
       labels:
         {{- include "jet-factory-chart.selectorLabels" . | nindent 8 }}
     spec:
+      # TODO:  <24-04-03, yangek> remove .Values.imageCredentials#
       imagePullSecrets:
+      {{- if .Values.image.existingImageSecret }}
+        - name: {{ .Values.image.existingImageSecret }}
+      {{- else }}
         - name: {{ include "jet-factory-chart.fullname" . }}-docker-registry-secret
+      {{- end }}
       initContainers: 
         - name: {{ .Chart.Name }}-create-database
           command: ["sh", "-c"]

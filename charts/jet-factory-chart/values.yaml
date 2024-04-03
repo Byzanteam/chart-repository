@@ -11,6 +11,7 @@ image:
   repository: jet/jet_factory
   pullPolicy: IfNotPresent
   tag: "latest"
+  existingImageSecret: ""
 
 imageCredentials:
   registry: registry.cn-hangzhou.aliyuncs.com
