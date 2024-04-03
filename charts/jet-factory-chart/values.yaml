@@ -1,0 +1,64 @@
+# Default values for jet-factory-chart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+nameOverride: ""
+fullnameOverride: ""
+
+replicaCount: 1
+
+image:
+  repository: jet/jet_factory
+  pullPolicy: IfNotPresent
+  tag: "latest"
+  existingImageSecret: ""
+
+imageCredentials:
+  registry: registry.cn-hangzhou.aliyuncs.com
+  username: deploy-man@skylark
+  password: changeit
+  email: dev@byzan.team
+
+service:
+  type: ClusterIP
+  port: 4000
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+restartPolicy: Always
+
+# Application setting
+jetFactoryHost: factory.jet.localhost
+jetFactoryTLSSecret:
+
+database:
+  host: postgresql
+  port: "5432"
+  user: postgres
+  password: postgres
+  database: factory
+  # initcontainer 使用的 postgresql 镜像, 用于创建应用所需数据库
+  image: postgres:latest
+
+# jet-factory environment variable
+# DATABASE_URL 通过 configMap 设置
+env:
+  SECRET_KEY_BASE: ""
+  PHX_HOST: localhost

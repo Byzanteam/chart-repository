@@ -1,0 +1,22 @@
+# chart API 版本
+apiVersion: v2
+# chart名称
+name: jet-factory-chart
+# chart 描述
+description: A Helm chart for Kubernetes
+# chart 类型
+type: application
+
+# chart 版本
+version: 1.0.0
+# 项目源码的URL列表
+sources:
+  - https://github.com/Byzanteam/jet-helm-chart
+# 维护者信息
+maintainers:
+  # 维护者名字
+  - name: YangKe
+  # 维护者邮箱
+    email: yangke@jet.work
+# 包含的应用版本
+appVersion: "0.1.0"

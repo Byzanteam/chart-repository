@@ -1,0 +1,54 @@
+{{/* Middlewares for web ingress-routes */}}
+{{- $webMiddlewares := list }}
+{{- $webMiddlewares = append $webMiddlewares "compress" }}
+{{- if .Values.jetTLSSecret | empty | not }}
+{{- $webMiddlewares = append $webMiddlewares "redirect-to-https" }}
+{{- end }}
+
+{{/* Middlewares for websecure ingress-routes */}}
+{{- $websecureMiddlewares := list }}
+{{- $websecureMiddlewares = append $websecureMiddlewares "compress" }}
+{{- $websecureMiddlewares = append $websecureMiddlewares "server-headers" }}
+
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ include "jet-factory-chart.fullname" . }}-web
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: HOST(`{{ .Values.jetHost }}`)
+      kind: Rule
+      services:
+        - name: {{ include "jet-factory-chart.fullname" $ }}
+          port: {{ include "jet-factory-chart.fullname" $ }}
+          passHostHeader: true
+      middlewares:
+        {{- range $webMiddlewares }}
+        - name: {{ include "jet-factory-chart.fullname" $ }}-{{ . }}
+        {{- end}}
+
+---
+{{- if .Values.jetTLSSecret | empty | not }}
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ include "jet-factory-chart.fullname" . }}-websecure
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: HOST(`{{ .Values.jetHost }}`)
+      kind: Rule
+      services:
+        - name: {{ include "jet-factory-chart.fullname" $ }}
+          passHostHeader: true
+          port: {{ include "jet-factory-chart.fullname" $ }}
+      middlewares:
+        {{- range $websecureMiddlewares }}
+        - name: {{ include "jet-factory-chart.fullname" $ }}-{{ . }}
+        {{- end}}
+  tls:
+    secretName: {{ include "jet-factory-chart.fullname" $ }}-tls-secret
+{{- end }}

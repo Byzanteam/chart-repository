@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "jet-factory-chart.fullname" . }}
+  labels:
+    {{- include "jet-factory-chart.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.port }}
+      protocol: TCP
+      name: {{ include "jet-factory-chart.fullname" . }}
+  selector:
+    {{- include "jet-factory-chart.selectorLabels" . | nindent 4 }}
