@@ -1,0 +1,17 @@
+{{- if $.Values.ingressroute.middlewares.corsSettings }}
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ include "jet-helm-chart.fullname" . }}-cors
+  namespace: {{ $.Values.namespace }}
+spec:
+  headers:
+    accessControlAllowHeaders:
+    {{- $.Values.ingressroute.middlewares.corsSettings.accessControlAllowHeaders | toYaml | nindent 8 }}
+    accessControlAllowMethods:
+    {{- $.Values.ingressroute.middlewares.corsSettings.accessControlAllowMethods | toYaml | nindent 8 }}
+    accessControlAllowOriginList:
+    {{- $.Values.ingressroute.middlewares.corsSettings.accessControlAllowOriginList | toYaml | nindent 8 }}
+    accessControlMaxAge: {{ $.Values.ingressroute.middlewares.corsSettings.accessControlMaxAge }}
+    addVaryHeader: true
+{{- end }}

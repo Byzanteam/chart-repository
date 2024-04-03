@@ -1,0 +1,94 @@
+suite: test projectman ingressroute
+templates:
+  - templates/project-man/ingressroute.yaml
+tests:
+  - it: should render match rule right
+    values:
+      - ./values/test.yaml
+    asserts:
+      - equal:
+          path: spec.routes[0].match
+          value: (Host(`jet.work`) || Host(`localhost`)) && PathPrefix(`/jet/project_man`)
+      - equal:
+          path: spec.routes[1].match
+          value: (Host(`jet.work`) || Host(`localhost`)) && PathPrefix(`/jet/plugin`)
+
+  - it: should render middleware by default
+    asserts:
+      - equal:
+          path: spec.routes[0].middlewares[0].name
+          value: RELEASE-NAME-jet-helm-chart-strip-prefix
+      - equal:
+          path: spec.routes[0].middlewares[1].name
+          value: RELEASE-NAME-jet-helm-chart-compress
+      - equal:
+          path: spec.routes[1].middlewares[0].name
+          value: RELEASE-NAME-jet-helm-chart-strip-prefix
+      - equal:
+          path: spec.routes[1].middlewares[1].name
+          value: RELEASE-NAME-jet-helm-chart-compress
+
+  - it: should render web middleware append cors and strip-prefix
+    values:
+      - ./values/test.yaml
+    asserts:
+      - equal:
+          path: spec.routes[0].middlewares[0].name
+          value: RELEASE-NAME-jet-helm-chart-strip-prefix
+      - equal:
+          path: spec.routes[0].middlewares[1].name
+          value: RELEASE-NAME-jet-helm-chart-cors
+      - equal:
+          path: spec.routes[0].middlewares[2].name
+          value: RELEASE-NAME-jet-helm-chart-compress
+      - equal:
+          path: spec.routes[0].middlewares[3].name
+          value: RELEASE-NAME-jet-helm-chart-redirect-to-https
+        documentIndex: 0
+
+  - it: should render websecure middleware append cors and strip-prefix
+    values:
+      - ./values/test.yaml
+    asserts:
+      - equal:
+          path: spec.routes[0].middlewares[0].name
+          value: RELEASE-NAME-jet-helm-chart-strip-prefix
+      - equal:
+          path: spec.routes[0].middlewares[1].name
+          value: RELEASE-NAME-jet-helm-chart-cors
+      - equal:
+          path: spec.routes[0].middlewares[2].name
+          value: RELEASE-NAME-jet-helm-chart-compress
+        documentIndex: 1
+
+  - it: should render middleware if set certificate
+    values:
+      - ./values/test.yaml
+    asserts:
+      - equal:
+          path: spec.routes[0].middlewares[3].name
+          value: RELEASE-NAME-jet-helm-chart-redirect-to-https
+        documentIndex: 0
+
+  - it:  should render tls secretName if set certificate
+    values:
+      - ./values/test.yaml
+    asserts:
+      - isSubset:
+          path: spec.tls
+          content:
+            secretName: jet-secret
+        documentIndex: 1
+
+  - it:  should render tls certResolver if set certificate
+    set:
+      certificate:
+        certResolver: byzanteam
+    values:
+      - ./values/test.yaml
+    asserts:
+      - isSubset:
+          path: spec.tls
+          content:
+            certResolver: byzanteam
+        documentIndex: 1

@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "jet-helm-chart.fullname" . }}-breeze
+  labels:
+    {{- include "jet-helm-chart.breezeLabels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: 50052
+      targetPort: breeze-grpc
+      protocol: TCP
+      name: breeze-grpc
+    - port: 2137
+      targetPort: breeze-http
+      protocol: TCP
+      name: breeze-http
+  selector:
+    {{- include "jet-helm-chart.breezeSelectorLabels" . | nindent 4 }}
