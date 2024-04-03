@@ -35,6 +35,32 @@ entries:
   jet-helm-chart:
   - apiVersion: v2
     appVersion: 0.1.0
+    created: "2024-04-03T06:54:11.905356503Z"
+    dependencies:
+    - alias: projectmandb
+      condition: projectmandb.enabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 12.5.7
+    - alias: dynamicdb
+      condition: dynamicdb.enabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 12.5.7
+    description: A jet helm chart
+    digest: 3a3ff7f8d6ecfa2c60a6e1265c2c903a18aea58678e304ca9bc8dfb3599c7691
+    maintainers:
+    - email: yangke@jet.work
+      name: YangKe
+    name: jet-helm-chart
+    sources:
+    - https://github.com/Byzanteam/jet-helm-chart
+    type: application
+    urls:
+    - https://github.com/Byzanteam/chart-repository/releases/download/jet-helm-chart-0.2.3/jet-helm-chart-0.2.3.tgz
+    version: 0.2.3
+  - apiVersion: v2
+    appVersion: 0.1.0
     created: "2024-04-03T04:49:09.544514985Z"
     dependencies:
     - alias: projectmandb
@@ -59,4 +85,4 @@ entries:
     urls:
     - https://github.com/Byzanteam/chart-repository/releases/download/jet-helm-chart-0.2.2/jet-helm-chart-0.2.2.tgz
     version: 0.2.2
-generated: "2024-04-03T06:22:39.006327648Z"
+generated: "2024-04-03T06:54:11.905367123Z"
