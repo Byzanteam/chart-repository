@@ -8,7 +8,7 @@ description: A jet helm chart
 type: application
 
 # chart 版本
-version: 0.2.2
+version: 0.2.4
 # 项目源码的URL列表
 sources:
   - https://github.com/Byzanteam/jet-helm-chart
